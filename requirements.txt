@@ -1,8 +1,8 @@
 # packaging
-pip>=9
-setuptools>=26
+pip
+setuptools
 twine
-wheel>=0.29
+wheel
 
 # data science
 numpy
@@ -23,7 +23,7 @@ mlflow
 s3fs
 
 # utilities
-six>=1.14
+six
 joblib
 memoized-property
 termcolor
