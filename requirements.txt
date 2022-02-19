@@ -27,3 +27,4 @@ six
 joblib
 memoized-property
 termcolor
+yfinance
