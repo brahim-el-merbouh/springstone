@@ -28,4 +28,9 @@ def moving_average(data, column, period):
     return result
 
 if __name__ == "__main__":
-    from springstone.data import
+    from springstone.data import get_data
+
+    df = get_data('TSLA')
+    df = bollinger_bands(df, 'Close', 20)
+    df = moving_average(df, 'Close', 7)
+    print(df.tail(15))
