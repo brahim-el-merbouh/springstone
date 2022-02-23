@@ -1,6 +1,6 @@
 import pandas as pd
 
-def bollinger_bands(data, column, period, standard_deviations=2):
+def bollinger_bands(data, column, period, standard_deviations=2, new_columns_only=False):
     """Bollinger Lower, Middle and Upper bands over a specified period
        Input:
            data: dataframe
@@ -11,26 +11,30 @@ def bollinger_bands(data, column, period, standard_deviations=2):
     result = data.copy()
     sma = result[column].rolling(window=period, closed='right').mean()
     band = standard_deviations * result[column].rolling(window=period, closed='right').std()
-    result[f'{column}_bbl'] = sma - band
-    result[f'{column}_bbm'] = sma
-    result[f'{column}_bbu'] = sma + band
+    new_column_name = f'{column}_bb{standard_deviations}'
+    result[new_column_name] = sma + band
+    if new_columns_only:
+        return result[[new_column_name]]
     return result
 
-def moving_average(data, column, period):
+def moving_average(data, column, period, new_columns_only=False):
     """Average price over a specified period
        Input:
            data: dataframe
            column: column name to apply the moving avreage
            period: number of days of the window
        Output: original dataframe with the {column}_ma"""
+    new_column_name = f'{column}_ma{int(period)}'
     result = data.copy()
-    result[f'{column}_ma'] = result[column].rolling(window=period, closed='right').mean()
+    result[new_column_name] = result[column].rolling(window=period, closed='right').mean()
+    if new_columns_only:
+        return result[[new_column_name]]
     return result
 
 if __name__ == "__main__":
     from springstone.data import get_data
 
     df = get_data('TSLA')
-    df = bollinger_bands(df, 'Close', 20)
+    df = bollinger_bands(df, 'Close', 20, 2)
     df = moving_average(df, 'Close', 7)
     print(df.tail(15))
