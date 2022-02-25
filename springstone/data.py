@@ -5,7 +5,7 @@ import numpy as np
 
 def get_data(ticker_name,start="2012-02-18",end="2022-02-19"):
     '''returns a DataFrame from yfinance'''
-    data = yfB.download(ticker_name,start,end)
+    data = yfB.download(ticker_name, start, end).drop(columns='Adj Close')
     return data
 
 def get_missing_dates(dataframe, include_weekends=False):
