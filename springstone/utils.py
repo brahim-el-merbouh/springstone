@@ -1,6 +1,10 @@
 import pandas as pd
 import numpy as np
-from springstone.data import get_missing_dates, create_df_for_prophet
+from springstone.data import get_missing_dates, create_df_for_prophet, get_data, download_model
+from prophet import Prophet
+from datetime import date, timedelta
+from springstone.params import MODEL_TYPE
+import holidays
 
 def bollinger_bands(data, column, period, standard_deviations=2, new_columns_only=False):
     """Create a Bollinger band over a specified period.
@@ -85,39 +89,46 @@ def prophet_non_business_days(data):
     return pd.DataFrame({'holiday': 'non business day', 'ds': get_missing_dates(data, True)})
 
 
-def temp_data_predict(ticker, y_predict):
-    """bollinger bands and moving average calculated for the next day predicted y
+def temp_data_predict(ticker):
+    """Next day closing price prediction with bollinger bands and moving average calculated
        Input:
-            data: ticker and y_predict
-            column: none
-       Output: list of values y_predict, bollinger band_predict(20days, 2SD),bollinger band_predict(20days,-2SD) and moving average_predict(7days)"""
+            ticker: ticker to predict next day closing price, bollinger bands and moving average
+       Output: dictionary of closelist of values y_, bollinger band_predict(20days, 2SD),bollinger band_predict(20days,-2SD) and moving average_predict(7days)"""
+    pipeline = download_model(ticker, MODEL_TYPE)
+    us_holidays = holidays.US()
+    next_day = date.today()
+    while True:
+        next_day += timedelta(days=1)
+        if next_day not in us_holidays:
+            break
+    future = pd.DataFrame({'ds': [next_day]})
+    forecast = pipeline.predict(future)
+    y_predict = forecast['yhat'][0]
     hist = get_data(ticker)
     hist_predict = hist[-40:]
     hist_predict.loc['predict'] = [0, 0, 0, y_predict, 0]
     hist_predict = bollinger_bands(hist_predict, 'Close', 20, 2)
     hist_predict = bollinger_bands(hist_predict, 'Close', 20, -2)
     hist_predict = moving_average(hist_predict, 'Close', 7)
-    list_temp = hist_predict[-1:].values
-    list_temp = list_temp[0][3:8].tolist()
-    list_temp.remove(0.0)
+    list_temp = hist_predict[-1:].to_dict('list')
+    ##list_temp = list_temp[0][3:8].tolist()
     return list_temp
 
 
 # Baseline strategy implemented for the recommendation
-def basic_recommendation(ticker, y_predict):
-    """recommendation for the next day predicted y, 5 options possible
+def basic_recommendation(ticker):
+    """Recommendation for the next day predicted y, 5 options possible
        Input:
-            data: ticker and y_predict
-            column: none
+            ticker: ticker to be used for the recommendation. Ex: 'AAPL'
        Output: one string text that give the recommendation"""
-    list_temp = temp_data_predict(ticker, y_predict)
-    if y_predict > list_temp[1]:
-        if y_predict < list_temp[3]:
+    list_temp = temp_data_predict(ticker)
+    if list_temp['Close'][0] > list_temp['Close_bb20_2'][0]:
+        if list_temp['Close'][0] < list_temp['Close_ma7'][0]:
             return "Strong sell recommendation"
         else:
             return "Sell recommendation"
-    if y_predict < list_temp[2]:
-        if y_predict > list_temp[3]:
+    if list_temp['Close'][0] < list_temp['Close_bb20_-2'][0]:
+        if list_temp['Close'][0] > list_temp['Close_ma7'][0]:
             return "Strong buy recommendation"
         else:
             return "Buy recommendation"
@@ -127,8 +138,6 @@ def basic_recommendation(ticker, y_predict):
 
 
 if __name__ == "__main__":
-    from springstone.data import get_data
-
     df = get_data('TSLA')
     df = bollinger_bands(df, 'Close', 20)
     df = moving_average(df, 'Close', 7)

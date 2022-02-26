@@ -28,3 +28,6 @@ joblib
 memoized-property
 termcolor
 yfinance
+prophet
+joblib
+holidays
