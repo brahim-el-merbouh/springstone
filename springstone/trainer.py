@@ -8,6 +8,17 @@ from utils import prophet_preprocessing, prophet_non_business_days
 from data import get_data, create_df_for_prophet
 from params import PROPHET_COLUMN,PROPHET_PERIOD
 from prophet import Prophet
+import joblib
+
+class ProphetWrapper(BaseEstimator):
+    def __init__(self, non_business_days):
+        super().__init__()
+        self.non_business_days = non_business_days
+        self.prophet = Prophet(holidays=self.non_business_days)
+
+    def fit(self, X, y=0):
+        self.prophet.fit(X)
+        return self
 
 class Trainer():
     def __init__(self, model, X, y, non_business_days=None):
@@ -33,8 +44,10 @@ class Trainer():
     def get_prophet_pipeline(self):
         pipe_ph = Pipeline([
             ('prophet_preproc', FunctionTransformer(lambda df: prophet_preprocessing(df,PROPHET_COLUMN))),
-            ('prophet_model', Prophet(holidays=self.non_business_days))
+            ('prophet_model', ProphetWrapper(self.non_business_days))
         ])
+        return pipe_ph
+
     def get_RNN_pipeline(self):
         pass
 
@@ -46,9 +59,18 @@ class Trainer():
         self.pipeline.fit(self.X, self.y)
 
     def evaluate(self, X_test, y_test):
-        y_pred = self.pipeline.predict(X_test)
+        if isinstance(self.model, Prophet):
+            y_pred = self.pipeline['prophet_model'].prophet.predict(X_test['ds'])
+        else:
+            y_pred = self.pipeline.predict(X_test)
         rmse = self.compute_performance_metric(y_test, y_pred)
         return rmse
+    
+    def save_model_locally(self, ticker, model_type):
+        """Save the model into a .joblib format"""
+        joblib.dump(self.pipeline, f'model_{model_type}_{ticker}.joblib')
+
+    def predict(self, )
 
 if __name__ == "__main__":
     # Get and clean data
