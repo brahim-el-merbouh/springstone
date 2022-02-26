@@ -4,7 +4,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, FunctionTransformer
 #from sklearn.compose import ColumnTransformer
 from sklearn.metrics import mean_absolute_error
-from utils import prophet_preprocessing
+from utils import prophet_preprocessing, prophet_non_business_days
 from data import get_data, create_df_for_prophet
 from params import PROPHET_COLUMN,PROPHET_PERIOD
 from prophet import Prophet
@@ -12,8 +12,10 @@ from prophet import Prophet
 class Trainer():
     def __init__(self, model, X, y, non_business_days=None):
         """
+            model: model to train
             X: pandas DataFrame
             y: pandas Series
+            non_business_days: non business days for prophet model
         """
         assert isinstance(X, pd.DataFrame)
         assert isinstance(y, pd.Series)
@@ -51,13 +53,14 @@ class Trainer():
 if __name__ == "__main__":
     # Get and clean data
     df = get_data('TSLA')
-    df_prophet = clean_data(df)
-    y = df["fare_amount"]
-    X = df.drop("fare_amount", axis=1)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+    #df_prophet = clean_data(df)
+    #y = df["Close"]
+    #X = df.drop("Close", axis=1)
+    #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
     # Train and save model, locally and
-    trainer = Trainer(X=X_train, y=y_train)
-    trainer.set_experiment_name('xp2')
+    df_nbd = prophet_non_business_days(df)
+    trainer_prophet = Trainer(X=df, y=None, non_business_days=df_nbd)
+    #trainer.set_experiment_name('xp2')
     trainer.run()
     rmse = trainer.evaluate(X_test, y_test)
     print(f"rmse: {rmse}")
