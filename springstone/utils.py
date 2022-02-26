@@ -36,6 +36,17 @@ def moving_average(data, column, period, new_columns_only=False):
         return result[[new_column_name]]
     return result
 
+def daily_return(data, column):
+    """Percentage change in the closing price from today and previous day
+       Input:
+            data: dataframe
+            column: column name to apply to the daily return
+       Output: original dataframe with the percentage return column"""
+    new_column_name = "percentage_change"
+    result = data.copy()
+    result[new_column_name] = result[column].pct_change()
+    return result
+
 if __name__ == "__main__":
     from springstone.data import get_data
 
