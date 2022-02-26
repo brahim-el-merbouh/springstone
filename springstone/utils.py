@@ -85,6 +85,47 @@ def prophet_non_business_days(data):
     return pd.DataFrame({'holiday': 'non business day', 'ds': get_missing_dates(data, True)})
 
 
+def temp_data_predict(ticker, y_predict):
+    """bollinger bands and moving average calculated for the next day predicted y
+       Input:
+            data: ticker and y_predict
+            column: none
+       Output: list of values y_predict, bollinger band_predict(20days, 2SD),bollinger band_predict(20days,-2SD) and moving average_predict(7days)"""
+    hist = get_data(ticker)
+    hist_predict = hist[-40:]
+    hist_predict.loc['predict'] = [0, 0, 0, y_predict, 0]
+    hist_predict = bollinger_bands(hist_predict, 'Close', 20, 2)
+    hist_predict = bollinger_bands(hist_predict, 'Close', 20, -2)
+    hist_predict = moving_average(hist_predict, 'Close', 7)
+    list_temp = hist_predict[-1:].values
+    list_temp = list_temp[0][3:8].tolist()
+    list_temp.remove(0.0)
+    return list_temp
+
+
+# Baseline strategy implemented for the recommendation
+def basic_recommendation(ticker, y_predict):
+    """recommendation for the next day predicted y, 5 options possible
+       Input:
+            data: ticker and y_predict
+            column: none
+       Output: one string text that give the recommendation"""
+    list_temp = temp_data_predict(ticker, y_predict)
+    if y_predict > list_temp[1]:
+        if y_predict < list_temp[3]:
+            return "Strong sell recommendation"
+        else:
+            return "Sell recommendation"
+    if y_predict < list_temp[2]:
+        if y_predict > list_temp[3]:
+            return "Strong buy recommendation"
+        else:
+            return "Buy recommendation"
+    else:
+        return "Hold"
+
+
+
 if __name__ == "__main__":
     from springstone.data import get_data
 
