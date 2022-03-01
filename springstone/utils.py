@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from springstone.data import get_missing_dates, create_df_for_prophet, get_data, download_model
-from prophet import Prophet
 from datetime import date, timedelta
 from springstone.params import MODEL_TYPE
 import holidays
@@ -89,21 +88,35 @@ def prophet_non_business_days(data):
     return pd.DataFrame({'holiday': 'non business day', 'ds': get_missing_dates(data, True)})
 
 
+def next_business_day(day):
+    """Return the next business day taking into account US holidays and weekends
+       Input:
+            day: date from which the next business day is determined
+       Output: next business day date"""
+    us_holidays = holidays.US()
+    next_business_day = day
+    while True:
+        next_business_day += timedelta(days=1)
+        if next_business_day not in us_holidays and next_business_day.weekday() not in [5, 6]:
+            break
+    return next_business_day
+
+
 def temp_data_predict(ticker):
     """Next day closing price prediction with bollinger bands and moving average calculated
        Input:
             ticker: ticker to predict next day closing price, bollinger bands and moving average
        Output: dictionary of closelist of values y_, bollinger band_predict(20days, 2SD),bollinger band_predict(20days,-2SD) and moving average_predict(7days)"""
+    # Download the prediction model
     pipeline = download_model(ticker, MODEL_TYPE)
-    us_holidays = holidays.US()
-    next_day = date.today()
-    while True:
-        next_day += timedelta(days=1)
-        if next_day not in us_holidays:
-            break
-    future = pd.DataFrame({'ds': [next_day]})
-    forecast = pipeline.predict(future)
-    y_predict = forecast['yhat'][0]
+
+    #Run the prediction for the next business day
+    if MODEL_TYPE == 'prophet':
+        future = pd.DataFrame({'ds': [next_business_day(date.today())]})
+        forecast = pipeline.predict(future)
+        y_predict = forecast['yhat'][0]
+
+    # Compute the moving average and the bollinger bands based on the predicted value and the day of the prediction
     hist = get_data(ticker)
     hist_predict = hist[-40:]
     hist_predict.loc['predict'] = [0, 0, 0, y_predict, 0]
@@ -111,7 +124,6 @@ def temp_data_predict(ticker):
     hist_predict = bollinger_bands(hist_predict, 'Close', 20, -2)
     hist_predict = moving_average(hist_predict, 'Close', 7)
     list_temp = hist_predict[-1:].to_dict('list')
-    ##list_temp = list_temp[0][3:8].tolist()
     return list_temp
 
 
