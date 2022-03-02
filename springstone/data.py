@@ -1,7 +1,7 @@
-from webbrowser import get
 import yfinance as yfB
 import pandas as pd
 import numpy as np
+import joblib
 
 def get_data(ticker_name,start="2012-02-18",end="2022-02-19"):
     '''returns a DataFrame from yfinance'''
@@ -31,6 +31,15 @@ def create_df_for_prophet(data):
     '''create a dataset fit for prophet'''
     data_prophet = data['Close'].copy().reset_index().rename(columns={'Date': 'ds','Close': 'y'})
     return data_prophet
+
+def download_model(ticker, model_type):
+    """Download a saved model for a ticker and a model_type
+       Input:
+            ticker: ticker used by the model
+            model_type: type of model used such as prohet or RNN
+       Ouptut: return a fited model"""
+    if model_type == 'prophet':       # download prophet models saved locally
+        return joblib.load(f'model_{model_type}_{ticker}.joblib')
 
 if __name__ == "__main__":
     df = get_data('TSLA')
