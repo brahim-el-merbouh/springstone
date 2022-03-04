@@ -44,7 +44,7 @@ class Trainer():
         self.non_business_days= non_business_days
 
     def set_pipeline(self):
-        if self.model == "Prophet":
+        if self.model == "prophet":
             self.pipeline = self.get_prophet_pipeline()
         
     def get_prophet_pipeline(self):
@@ -58,7 +58,7 @@ class Trainer():
         pass
 
     def compute_performance_metric(self, y_true, y_pred):
-        if self.model == "Prophet":
+        if self.model == "prophet":
             return mean_absolute_error(y_true, y_pred)
     
     def run(self):
@@ -66,7 +66,7 @@ class Trainer():
         self.pipeline.fit(self.X, self.y)
     
     def evaluate(self, X_test, y_test):
-        if self.model == "Prophet":
+        if self.model == "prophet":
             y_pred = self.pipeline['prophet_model'].prophet.predict(X_test)['yhat']
         else:
             y_pred = self.pipeline.predict(X_test)
@@ -78,7 +78,7 @@ class Trainer():
         joblib.dump(self.pipeline, f'model_{model_type}_{ticker}.joblib')
 
     def predict(self, X):
-        if self.model == "Prophet":
+        if self.model == "prophet":
             y_pred = self.pipeline['prophet_model'].prophet.predict(X)['yhat']
         else:
             y_pred = self.pipeline.predict(X)
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     
     df_nbd = prophet_non_business_days(df)
     df_train, df_test = create_train_test(df)
-    trainer_prophet = Trainer(model="Prophet",X=df_train, y=None, non_business_days=df_nbd)
+    trainer_prophet = Trainer(model="prophet",X=df_train, y=None, non_business_days=df_nbd)
     
     df_test_prophet = create_df_for_prophet(df_test)    
     trainer_prophet.run()
