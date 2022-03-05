@@ -31,3 +31,5 @@ yfinance
 prophet
 joblib
 holidays
+tensorflow
+streamlit
