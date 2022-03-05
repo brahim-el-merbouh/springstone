@@ -108,15 +108,13 @@ def temp_data_predict(ticker):
        Input:
             ticker: ticker to predict next day closing price, bollinger bands and moving average
        Output: dictionary of closelist of values y_, bollinger band_predict(20days, 2SD),bollinger band_predict(20days,-2SD) and moving average_predict(7days)"""
-    # Download the prediction model
-    #pipeline = download_model(ticker, MODEL_TYPE)
 
     #Run the prediction for the next business day
     if MODEL_TYPE == 'prophet':
         future = pd.DataFrame({'ds': [next_business_day(date.today())]})
-        #forecast = pipeline.predict(future)
-        forecast = predict_from_model(ticker, MODEL_TYPE, future) 
-        y_predict = forecast['yhat'][0]
+
+    forecast = predict_from_model(ticker, MODEL_TYPE, future)
+    y_predict = forecast[0]
 
     # Compute the moving average and the bollinger bands based on the predicted value and the day of the prediction
     hist = get_data(ticker)
