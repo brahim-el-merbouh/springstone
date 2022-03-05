@@ -1,28 +1,15 @@
-from pickle import NONE
 import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, FunctionTransformer
-from sklearn.base import BaseEstimator
 #from sklearn.compose import ColumnTransformer
 from sklearn.metrics import mean_absolute_error
-from utils import prophet_preprocessing, prophet_non_business_days
-from data import get_data, create_df_for_prophet, create_train_test
-from params import PROPHET_COLUMN,PROPHET_PERIOD
-from prophet import Prophet
+from springstone.data import get_data, create_df_for_prophet, create_train_test
+from springstone.prophet_wrapper import ProphetWrapper
+from springstone.utils import prophet_preprocessing, prophet_non_business_days
+from springstone.params import PROPHET_COLUMN,PROPHET_PERIOD
 import joblib
 
-class ProphetWrapper(BaseEstimator):
-    def __init__(self, non_business_days):
-        super().__init__()
-        self.non_business_days = non_business_days
-        self.prophet = Prophet(holidays=self.non_business_days)
 
-    def fit(self, X, y=0):
-        self.prophet.fit(X)
-        return self
-    
-    def transform(self, X, y=None):
-        pass
 
 class Trainer():
     def __init__(self, model, X, y, non_business_days=None):
@@ -44,7 +31,7 @@ class Trainer():
         self.non_business_days= non_business_days
 
     def set_pipeline(self):
-        if self.model == "Prophet":
+        if self.model == "prophet":
             self.pipeline = self.get_prophet_pipeline()
         
     def get_prophet_pipeline(self):
@@ -58,7 +45,7 @@ class Trainer():
         pass
 
     def compute_performance_metric(self, y_true, y_pred):
-        if self.model == "Prophet":
+        if self.model == "prophet":
             return mean_absolute_error(y_true, y_pred)
     
     def run(self):
@@ -66,7 +53,7 @@ class Trainer():
         self.pipeline.fit(self.X, self.y)
     
     def evaluate(self, X_test, y_test):
-        if self.model == "Prophet":
+        if self.model == "prophet":
             y_pred = self.pipeline['prophet_model'].prophet.predict(X_test)['yhat']
         else:
             y_pred = self.pipeline.predict(X_test)
@@ -78,7 +65,7 @@ class Trainer():
         joblib.dump(self.pipeline, f'model_{model_type}_{ticker}.joblib')
 
     def predict(self, X):
-        if self.model == "Prophet":
+        if self.model == "prophet":
             y_pred = self.pipeline['prophet_model'].prophet.predict(X)['yhat']
         else:
             y_pred = self.pipeline.predict(X)
@@ -87,11 +74,11 @@ class Trainer():
 if __name__ == "__main__":
     # Get and clean data
     ticker = 'AAPL'
-    df = get_data(ticker)
+    df = get_data(ticker,end='2022-03-04')
     
     df_nbd = prophet_non_business_days(df)
     df_train, df_test = create_train_test(df)
-    trainer_prophet = Trainer(model="Prophet",X=df_train, y=None, non_business_days=df_nbd)
+    trainer_prophet = Trainer(model="prophet",X=df_train, y=None, non_business_days=df_nbd)
     
     df_test_prophet = create_df_for_prophet(df_test)    
     trainer_prophet.run()
