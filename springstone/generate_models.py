@@ -3,7 +3,7 @@ from data import create_df_for_prophet, create_train_test, get_data
 from params import MODEL_TYPE, TICKERS
 from utils import prophet_non_business_days
 from trainer import Trainer
-from springstone.predict import evaluate
+from springstone.predict import evaluate_model
 from springstone.prophet_wrapper import ProphetWrapper
 
 def generate_prophet_models():
@@ -19,9 +19,10 @@ def generate_prophet_models():
         df_test_prophet = create_df_for_prophet(df_test)    
         trainer_prophet.run()
         trainer_prophet.save_model_locally(ticker, MODEL_TYPE)
-        mae = evaluate(ticker, MODEL_TYPE, df_test_prophet[['ds']], df_test_prophet['y'])
+        mae = evaluate_model(ticker, MODEL_TYPE, df_test_prophet[['ds']], df_test_prophet['y'])
         metrics['model'].append(f'{MODEL_TYPE}_{ticker}')
         metrics['MAE'].append(mae)
+        pd.DataFrame.from_dict(metrics).to_csv(f'{MODEL_TYPE}_models_metrics.csv', index=False)
         print(metrics)
 
 if __name__ == "__main__":
