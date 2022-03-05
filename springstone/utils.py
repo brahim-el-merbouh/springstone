@@ -1,10 +1,10 @@
+import holidays
 import pandas as pd
 import numpy as np
-from data import get_missing_dates, create_df_for_prophet, get_data, download_model
+from springstone.data import get_missing_dates, create_df_for_prophet, get_data, download_model
 from datetime import date, timedelta
-from params import MODEL_TYPE
-import holidays
-from predict import predict_from_model
+from springstone.params import MODEL_TYPE
+from springstone.predict import predict_from_model
 
 def bollinger_bands(data, column, period, standard_deviations=2, new_columns_only=False):
     """Create a Bollinger band over a specified period.
@@ -148,7 +148,6 @@ def basic_recommendation(ticker):
             return "Buy recommendation"
     else:
         return "Hold"
-
 
 
 if __name__ == "__main__":

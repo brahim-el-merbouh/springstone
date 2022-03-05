@@ -1,13 +1,12 @@
 from sklearn.metrics import mean_absolute_error
-from data import download_model, get_data, create_df_for_prophet, create_train_test
-import trainer
-#from trainer import ProphetWrapper
+from springstone.data import download_model, get_data, create_df_for_prophet, create_train_test
+from springstone.prophet_wrapper import ProphetWrapper
 
 def compute_performance_metric(model_type, y_true, y_pred):
     if model_type == "prophet":
         return mean_absolute_error(y_true, y_pred)
 
-def evaluate(ticker, model_type,  X, y_true):
+def evaluate_model(ticker, model_type,  X, y_true):
     """Evaluates a saved model for a ticker and a model_type
        Input:
             ticker: ticker used by the model
@@ -46,7 +45,7 @@ if __name__ == "__main__":
 
     df_test_prophet = create_df_for_prophet(df_test)    
     
-    mae = evaluate(ticker, model_type, df_test_prophet[['ds']], df_test_prophet['y'])
+    mae = evaluate_model(ticker, model_type, df_test_prophet[['ds']], df_test_prophet['y'])
     print(f"MAE: {mae}")
     y_pred = predict_from_model(ticker, model_type, df_test_prophet[:5][['ds']])
     print(y_pred)

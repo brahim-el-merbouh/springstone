@@ -5,7 +5,7 @@ from utils import prophet_non_business_days
 from trainer import Trainer, ProphetWrapper
 #from springstone.predict import evaluate, predict_from_model
 
-def generate_prophet_models():
+""" def generate_prophet_models():
 
     metrics = {'model':[],'MAE':[]}
 
@@ -24,4 +24,4 @@ def generate_prophet_models():
         #print(metrics)
 
 if __name__ == "__main__":
-    generate_prophet_models()
+    generate_prophet_models() """
