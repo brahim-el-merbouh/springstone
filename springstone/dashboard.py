@@ -39,9 +39,12 @@ ticker_name = st.sidebar.selectbox("Select Company", selected_stock)
 data = get_data(ticker_name, start, end)
 data.reset_index(inplace=True)
 
-#rec = requests.get("http://localhost:8000/predict?ticker={ticker_name}")
-rec = basic_recommendation(ticker_name)
+
+response = requests.get(f'https://springstoneforprophetgcp-2bu5nzzs7a-ew.a.run.app/predict?ticker={ticker_name}')
+#rec = basic_recommendation(ticker_name)
+rec = response.json()['recommendation']
 st.button(rec)
+
 
 # -----------Company Name-------------------
 
