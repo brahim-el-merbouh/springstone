@@ -6,7 +6,8 @@ import numpy as np
 from plotly import graph_objs as go
 import datetime as dt
 from datetime import date
-from utils import basic_recommendation
+from springstone.utils import basic_recommendation
+import matplotlib.pyplot as plt
 
 # -----------Page Layout----------------------
 
@@ -29,8 +30,15 @@ end = st.sidebar.date_input('End date:',
 # -----------Stock Selection-------------------
 
 selected_stock = np.array([ "AAPL", "BTC-USD", "BAC","TSLA","SPY"])
-ticker_name = st.sidebar.selectbox("Select Company", selected_stock)
-rec = st.button("Strong Buy")
+ticker_name = st.sidebar.multiselect("Select Company", selected_stock)
+
+if st.button('Stock Recommendation'):
+        with st.spinner("Generating Recommendation"):
+            st.balloons()
+            st.button('Strong Buy')
+
+if ticker_name in selected_stock is "AAPL":
+    st.button("Strong Buy")
 
 # ----------Indicator Selection----------------
 
@@ -50,7 +58,20 @@ data.reset_index(inplace=True)
 
 chart_width = st.expander(label="Adjust Chart Size").slider("", 1000, 2800, 950)
 
-def plot_candlestick(ma_flag=False):
+def relativeret(data):
+    rel = data.pct_change()
+    cumret = (1+rel).cumprod() - 1
+    cumret = cumret.fillna(0)
+    cumret = cumret*100
+    return cumret
+
+def plot_raw_data():
+    data = relativeret(get_data(ticker_name, start, end)['Close'])
+    st.line_chart(data)
+
+plot_raw_data()
+
+def plot_candlestick():
     fig = go.Figure(data=[go.Candlestick(x=data['Date'],
             open=data['Open'],
             high=data['High'],
@@ -71,23 +92,3 @@ def plot_candlestick(ma_flag=False):
     st.plotly_chart(fig)
 
 plot_candlestick()
-
-def plot_raw_data():
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=data['Date'], y=data['Open'], name='Stock_Open'))
-    fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name='Stock_Close'))
-
-    fig.update_layout(
-            width=chart_width,
-            margin=dict(l=0, r=0, t=0, b=0, pad=0),
-            legend=dict(
-                x=0,
-                y=0.99,
-                traceorder="normal",
-                font=dict(size=12),
-            ),
-            autosize=False,
-            template="plotly_dark",)
-    st.plotly_chart(fig)
-
-plot_raw_data()
