@@ -32,7 +32,7 @@ def predict_from_model(ticker, model_type, X):
         y_pred = model['prophet_model'].prophet.predict(X)['yhat']
     else:
         y_pred = model.predict(X)
-        
+
     return y_pred
 
 if __name__ == "__main__":
@@ -40,11 +40,11 @@ if __name__ == "__main__":
     ticker = 'AAPL'
     model_type='prophet'
     df = get_data(ticker)
-    
+
     df_train, df_test = create_train_test(df)
 
-    df_test_prophet = create_df_for_prophet(df_test)    
-    
+    df_test_prophet = create_df_for_prophet(df_test)
+
     mae = evaluate_model(ticker, model_type, df_test_prophet[['ds']], df_test_prophet['y'])
     print(f"MAE: {mae}")
     y_pred = predict_from_model(ticker, model_type, df_test_prophet[:5][['ds']])
