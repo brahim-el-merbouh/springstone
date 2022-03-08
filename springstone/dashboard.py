@@ -1,13 +1,15 @@
+from email.policy import default
 import streamlit as st
 from data import get_data
-from plot import relative_plot
 import pandas as pd
 import numpy as np
 from plotly import graph_objs as go
 import datetime as dt
 from datetime import date
-from springstone.utils import basic_recommendation
+from springstone.utils import basic_recommendation, moving_average, bollinger_bands
 import matplotlib.pyplot as plt
+import yfinance as yf
+import requests
 
 # -----------Page Layout----------------------
 
@@ -19,7 +21,7 @@ st.title("SpringStone Stock Prediction")
 today = dt.datetime.today()
 
 start = st.sidebar.date_input('Start date:',
-                                   today - dt.timedelta(days=365*1),
+                                   today - dt.timedelta(days=90*1),
                                    min_value=today - dt.timedelta(days=365*10),
                                    max_value=today - dt.timedelta(days=31*2))
 end = st.sidebar.date_input('End date:',
@@ -29,54 +31,67 @@ end = st.sidebar.date_input('End date:',
 
 # -----------Stock Selection-------------------
 
-selected_stock = np.array([ "AAPL", "BTC-USD", "BAC","TSLA","SPY"])
-ticker_name = st.sidebar.multiselect("Select Company", selected_stock)
+selected_stock = ("AAPL", "BTC-USD", "BAC","TSLA","SPY", "RIOT")
+ticker_name = st.sidebar.selectbox("Select Company", selected_stock)
 
-if st.button('Stock Recommendation'):
-        with st.spinner("Generating Recommendation"):
-            st.balloons()
-            st.button('Strong Buy')
-
-if ticker_name in selected_stock is "AAPL":
-    st.button("Strong Buy")
-
-# ----------Indicator Selection----------------
-
-st.text("")
-ma = st.sidebar.checkbox("Moving Average", value=False)
-if ma:
-    st.sidebar.text_input('Period')
-bb = st.sidebar.checkbox("Bollinger Band", value=False)
-if bb:
-    st.sidebar.text_input('Period')
-    st.sidebar.text_input('Standard Deviation')
+# ---------------Load Data---------------------
 
 data = get_data(ticker_name, start, end)
 data.reset_index(inplace=True)
 
+
+response = requests.get(f'https://springstoneforprophetgcp-2bu5nzzs7a-ew.a.run.app/predict?ticker={ticker_name}')
+#rec = basic_recommendation(ticker_name)
+rec = response.json()['recommendation']
+st.button(rec)
+
+
+# -----------Company Name-------------------
+
+def company_name(ticker_name):
+    if ticker_name == "BTC-USD":
+        return "Bitcoin USD"
+    cf = yf.Ticker(ticker_name)
+    company_name = cf.info['longName']
+    return company_name
+
+st.header(company_name(ticker_name))
+
+# ----------Indicator Selection----------------
+
+st.text("")
+ma_flag = st.sidebar.checkbox("Moving Average", value=False)
+if ma_flag:
+    period = st.sidebar.slider("Choose Period", min_value=7, max_value=100)
+st.text("")
+bb_flag = st.sidebar.checkbox("Bollinger Band", value=False)
+if bb_flag:
+    sd = st.sidebar.text_input('Standard Deviation')
+
+
 # ------------Plot Functions-------------------
 
-chart_width = st.expander(label="Adjust Chart Size").slider("", 1000, 2800, 950)
+chart_width = st.expander(label="Adjust Chart Size").slider("", 1000, 2800, 880)
 
-def relativeret(data):
-    rel = data.pct_change()
-    cumret = (1+rel).cumprod() - 1
-    cumret = cumret.fillna(0)
-    cumret = cumret*100
-    return cumret
-
-def plot_raw_data():
-    data = relativeret(get_data(ticker_name, start, end)['Close'])
-    st.line_chart(data)
-
-plot_raw_data()
-
-def plot_candlestick():
+def plot_candlestick(ma_flag = False):
     fig = go.Figure(data=[go.Candlestick(x=data['Date'],
             open=data['Open'],
             high=data['High'],
             low=data['Low'],
             close=data['Close'])])
+
+    fig.update_traces(name="Candlestick", selector=dict(type='candlestick'))
+
+    if ma_flag:
+        ma_data = moving_average(data,'Close',period)
+        fig.add_trace(
+            go.Scatter(
+            x=ma_data["Date"],
+            y=ma_data[f"Close_ma{int(period)}"],
+            mode="markers+lines",
+            name=f"{period} Day Moving Average",
+            line=dict(
+                color="blue")))
 
     fig.update_layout(
             width=chart_width,
@@ -89,6 +104,29 @@ def plot_candlestick():
             ),
             autosize=False,
             template="plotly_dark",)
+
+    fig.update_layout(legend=dict(
+    yanchor="top",
+    y=0.99,
+    xanchor="left",
+    x=0.8
+))
+    st.text("Candlestick Graph")
     st.plotly_chart(fig)
 
-plot_candlestick()
+plot_candlestick(ma_flag)
+
+def relativeret(data):
+    rel = data.pct_change()
+    cumret = (1+rel).cumprod() - 1
+    cumret = cumret.fillna(0)
+    return cumret
+
+def plot_raw_data():
+    selected_stock = ("AAPL", "BTC-USD", "BAC","TSLA","SPY", "RIOT")
+    name = st.sidebar.multiselect("Compare Company", selected_stock, default=ticker_name)
+    data = relativeret(get_data(name, start, end)['Close'])
+    st.text("Cumulative Return Comparison")
+    st.line_chart(data)
+
+plot_raw_data()

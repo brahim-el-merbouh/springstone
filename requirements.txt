@@ -33,3 +33,5 @@ joblib
 holidays
 tensorflow
 streamlit
+fastapi
+uvicorn

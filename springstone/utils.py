@@ -149,7 +149,9 @@ def basic_recommendation(ticker):
 
 
 if __name__ == "__main__":
-    df = get_data('TSLA')
-    df = bollinger_bands(df, 'Close', 20)
-    df = moving_average(df, 'Close', 7)
-    print(df.tail(15))
+    #df = get_data('TSLA')
+    #df = bollinger_bands(df, 'Close', 20)
+    #df = moving_average(df, 'Close', 7)
+    #print(df.tail(15))
+    rec = basic_recommendation('AAPL')
+    print(rec)
