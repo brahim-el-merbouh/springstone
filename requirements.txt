@@ -36,3 +36,4 @@ streamlit
 fastapi
 uvicorn
 termcolor
+plotly
