@@ -35,3 +35,4 @@ tensorflow
 streamlit
 fastapi
 uvicorn
+plotly
