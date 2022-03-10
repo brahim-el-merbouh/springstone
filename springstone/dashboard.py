@@ -1,6 +1,6 @@
 from email.policy import default
 import streamlit as st
-from data import get_data
+from springstone.data import get_data
 import pandas as pd
 import numpy as np
 from plotly import graph_objs as go

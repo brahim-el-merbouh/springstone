@@ -1,8 +1,8 @@
 import pandas as pd
-from data import create_df_for_prophet, create_train_test, get_data
-from params import MODEL_TYPE, TICKERS
-from utils import prophet_non_business_days
-from trainer import Trainer
+from springstone.data import create_df_for_prophet, create_train_test, get_data
+from springstone.params import MODEL_TYPE, TICKERS
+from springstone.utils import prophet_non_business_days
+from springstone.trainer import Trainer
 from springstone.predict import evaluate_model
 from springstone.prophet_wrapper import ProphetWrapper
 
@@ -15,8 +15,8 @@ def generate_prophet_models():
         df_nbd = prophet_non_business_days(df)
         df_train, df_test = create_train_test(df)
         trainer_prophet = Trainer(model="prophet",X=df_train, y=None, non_business_days=df_nbd)
-        
-        df_test_prophet = create_df_for_prophet(df_test)    
+
+        df_test_prophet = create_df_for_prophet(df_test)
         trainer_prophet.run()
         trainer_prophet.save_model_locally(ticker, MODEL_TYPE)
         mae = evaluate_model(ticker, MODEL_TYPE, df_test_prophet[['ds']], df_test_prophet['y'])
