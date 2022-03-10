@@ -6,7 +6,7 @@ import numpy as np
 from plotly import graph_objs as go
 import datetime as dt
 from datetime import date
-from springstone.utils import basic_recommendation, moving_average, bollinger_bands
+from ui_utils import basic_recommendation, moving_average, bollinger_bands
 import matplotlib.pyplot as plt
 import yfinance as yf
 import requests
@@ -35,16 +35,16 @@ selected_stock = ("AAPL", "BTC-USD", "BAC","TSLA","SPY", "RIOT")
 ticker_name = st.sidebar.selectbox("Select Company", selected_stock)
 
 # ---------------Load Data---------------------
-
-data = get_data(ticker_name, start, end)
-data.reset_index(inplace=True)
-
+@st.cache
+def load_data(ticker_name=ticker_name, start=start, end=end):
+    data = get_data(ticker_name, start, end)
+    data.reset_index(inplace=True)
+    return data
 
 response = requests.get(f'https://springstoneforprophetgcp-2bu5nzzs7a-ew.a.run.app/predict?ticker={ticker_name}')
 #rec = basic_recommendation(ticker_name)
 rec = response.json()['recommendation']
 st.button(rec)
-
 
 # -----------Company Name-------------------
 
@@ -73,23 +73,35 @@ if bb_flag:
 
 chart_width = st.expander(label="Adjust Chart Size").slider("", 1000, 2800, 880)
 
-def plot_candlestick(ma_flag = False):
-    fig = go.Figure(data=[go.Candlestick(x=data['Date'],
-            open=data['Open'],
-            high=data['High'],
-            low=data['Low'],
-            close=data['Close'])])
+
+def plot_candlestick(ma_flag = False, bb_flag = False):
+    fig = go.Figure(data=[go.Candlestick(x=load_data()['Date'],
+            open=load_data()['Open'],
+            high=load_data()['High'],
+            low=load_data()['Low'],
+            close=load_data()['Close'])])
 
     fig.update_traces(name="Candlestick", selector=dict(type='candlestick'))
 
     if ma_flag:
-        ma_data = moving_average(data,'Close',period)
+        ma_data = moving_average(load_data(),'Close',period)
         fig.add_trace(
             go.Scatter(
             x=ma_data["Date"],
             y=ma_data[f"Close_ma{int(period)}"],
             mode="markers+lines",
             name=f"{period} Day Moving Average",
+            line=dict(
+                color="blue")))
+
+    if bb_flag:
+        bb_data = bollinger_bands(load_data(),'Close',period,sd)
+        fig.add_trace(
+            go.Scatter(
+            x=ma_data["Date"],
+            y=ma_data[f"Close_bb{int(period)}_{sd}"],
+            mode="markers+lines",
+            name=f"Close_bb{int(period)}_{sd}",
             line=dict(
                 color="blue")))
 
