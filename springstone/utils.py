@@ -1,16 +1,16 @@
 import holidays
 import pandas as pd
 import numpy as np
-from springstone.data import get_missing_dates, create_df_for_prophet, get_data, download_model
+from springstone.data import get_missing_dates, create_df_for_prophet, get_data
 from datetime import date, timedelta
 from springstone.params import MODEL_TYPE
 from springstone.predict import predict_from_model
 
-def bollinger_bands(data, column, period, standard_deviations=2, new_columns_only=False):
+def bollinger_bands(data, col, period, standard_deviations=2, new_columns_only=False):
     """Create a Bollinger band over a specified period.
        Input:
            data: dataframe.
-           column: column name to apply the Bollinger Band.
+           col: column name to apply the Bollinger Band.
            period: number of days of the window.
            standard_deviations: number of standard deviations. 0 for the middle band, positive number for a upper band,
                                 negative number for a lower band.
@@ -18,15 +18,15 @@ def bollinger_bands(data, column, period, standard_deviations=2, new_columns_onl
                              False to return the original dataframe with the new Bollinger band column.
        Output: a dataframe with the {column}_bb{period}_{standard_deviations}"""
     result = data.copy()
-    sma = result[column].rolling(window=period, closed='right').mean()
-    band = standard_deviations * result[column].rolling(window=period, closed='right').std()
-    new_column_name = f'{column}_bb{int(period)}_{standard_deviations}'
+    sma = result[col].rolling(window=period, closed='right').mean()
+    band = standard_deviations * result[col].rolling(window=period, closed='right').std()
+    new_column_name = f'{col}_bb{int(period)}_{standard_deviations}'
     result[new_column_name] = sma + band
     if new_columns_only:
         return result[[new_column_name]]
     return result
 
-def moving_average(data, column, period, new_columns_only=False):
+def moving_average(data, col, period, new_columns_only=False):
     """Average price over a specified period.
        Input:
            data: dataframe.
@@ -35,22 +35,25 @@ def moving_average(data, column, period, new_columns_only=False):
            new_columns_only: True to return only the moving average column.
                              False to return the original dataframe with the new moving average column.
        Output: a dataframe with the {column}_ma{period}"""
-    new_column_name = f'{column}_ma{int(period)}'
+    new_column_name = f'{col}_ma{int(period)}'
     result = data.copy()
-    result[new_column_name] = result[column].rolling(window=period, closed='right').mean()
+    result[new_column_name] = result[col].rolling(window=period, closed='right').mean()
     if new_columns_only:
         return result[[new_column_name]]
     return result
 
-def daily_return(data, column):
+
+def daily_return(data, column, new_columns_only=False):
     """Percentage change in the closing price from today and previous day
        Input:
             data: dataframe
             column: column name to apply to the daily return
        Output: original dataframe with the percentage return column"""
-    new_column_name = "percentage_change"
+    new_column_name = f'{column}_percentage_change'
     result = data.copy()
     result[new_column_name] = result[column].pct_change()
+    if new_columns_only:
+        return result[[new_column_name]]
     return result
 
 def prophet_preprocessing(data, column):

@@ -33,7 +33,7 @@ class Trainer():
     def set_pipeline(self):
         if self.model == "prophet":
             self.pipeline = self.get_prophet_pipeline()
-        
+
     def get_prophet_pipeline(self):
         pipe_ph = Pipeline([
             ('prophet_preproc', FunctionTransformer(prophet_preprocessing, kw_args={"column": PROPHET_COLUMN})),
@@ -47,11 +47,11 @@ class Trainer():
     def compute_performance_metric(self, y_true, y_pred):
         if self.model == "prophet":
             return mean_absolute_error(y_true, y_pred)
-    
+
     def run(self):
         self.set_pipeline()
         self.pipeline.fit(self.X, self.y)
-    
+
     def evaluate(self, X_test, y_test):
         if self.model == "prophet":
             y_pred = self.pipeline['prophet_model'].prophet.predict(X_test)['yhat']
@@ -59,7 +59,7 @@ class Trainer():
             y_pred = self.pipeline.predict(X_test)
         rmse = self.compute_performance_metric(y_test, y_pred)
         return rmse
-    
+
     def save_model_locally(self, ticker, model_type):
         """Save the model into a .joblib format"""
         joblib.dump(self.pipeline, f'model_{model_type}_{ticker}.joblib')
@@ -75,12 +75,12 @@ if __name__ == "__main__":
     # Get and clean data
     ticker = 'AAPL'
     df = get_data(ticker,end='2022-03-04')
-    
+
     df_nbd = prophet_non_business_days(df)
     df_train, df_test = create_train_test(df)
     trainer_prophet = Trainer(model="prophet",X=df_train, y=None, non_business_days=df_nbd)
-    
-    df_test_prophet = create_df_for_prophet(df_test)    
+
+    df_test_prophet = create_df_for_prophet(df_test)
     trainer_prophet.run()
     mae = trainer_prophet.evaluate(df_test_prophet[['ds']], df_test_prophet['y'])
     print(f"MAE: {mae}")
