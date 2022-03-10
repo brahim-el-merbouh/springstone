@@ -6,7 +6,7 @@ import numpy as np
 from plotly import graph_objs as go
 import datetime as dt
 from datetime import date
-from springstone.utils import basic_recommendation, moving_average, bollinger_bands
+from ui_utils import basic_recommendation, moving_average, bollinger_bands
 import matplotlib.pyplot as plt
 import yfinance as yf
 import requests
