@@ -31,7 +31,7 @@ end = st.sidebar.date_input('End date:',
 
 # -----------Stock Selection-------------------
 
-selected_stock = ("AAPL", "BTC-USD", "BAC","TSLA","SPY", "RIOT")
+selected_stock = ("AAPL", "BTC-USD", "AMZN","TSLA","SPY", "RIOT")
 ticker_name = st.sidebar.selectbox("Select Company", selected_stock)
 
 # ---------------Load Data---------------------
@@ -41,10 +41,14 @@ def load_data(ticker_name=ticker_name, start=start, end=end):
     data.reset_index(inplace=True)
     return data
 
-response = requests.get(f'https://springstoneforprophetgcp-2bu5nzzs7a-ew.a.run.app/predict?ticker={ticker_name}')
-#rec = basic_recommendation(ticker_name)
-rec = response.json()['recommendation']
-st.button(rec)
+def recommendation():
+    if st.button('Check Recommendation'):
+        response = requests.get(f'https://springstoneforprophetgcp-2bu5nzzs7a-ew.a.run.app/predict?ticker={ticker_name}')
+        rec = response.json()['recommendation']
+        st.balloons()
+        st.write(rec)
+
+recommendation()
 
 # -----------Company Name-------------------
 
@@ -64,15 +68,11 @@ ma_flag = st.sidebar.checkbox("Moving Average", value=False)
 if ma_flag:
     period = st.sidebar.slider("Choose Period", min_value=7, max_value=100)
 st.text("")
-bb_flag = st.sidebar.checkbox("Bollinger Band", value=False)
-if bb_flag:
-    sd = st.sidebar.text_input('Standard Deviation')
 
 
 # ------------Plot Functions-------------------
 
 chart_width = st.expander(label="Adjust Chart Size").slider("", 1000, 2800, 880)
-
 
 def plot_candlestick(ma_flag = False, bb_flag = False):
     fig = go.Figure(data=[go.Candlestick(x=load_data()['Date'],
@@ -91,17 +91,6 @@ def plot_candlestick(ma_flag = False, bb_flag = False):
             y=ma_data[f"Close_ma{int(period)}"],
             mode="markers+lines",
             name=f"{period} Day Moving Average",
-            line=dict(
-                color="blue")))
-
-    if bb_flag:
-        bb_data = bollinger_bands(load_data(),'Close',period,sd)
-        fig.add_trace(
-            go.Scatter(
-            x=ma_data["Date"],
-            y=ma_data[f"Close_bb{int(period)}_{sd}"],
-            mode="markers+lines",
-            name=f"Close_bb{int(period)}_{sd}",
             line=dict(
                 color="blue")))
 
@@ -135,7 +124,7 @@ def relativeret(data):
     return cumret
 
 def plot_raw_data():
-    selected_stock = ("AAPL", "BTC-USD", "BAC","TSLA","SPY", "RIOT")
+    selected_stock = ("AAPL", "BTC-USD", "AMZN","TSLA","SPY", "RIOT")
     name = st.sidebar.multiselect("Compare Company", selected_stock, default=ticker_name)
     data = relativeret(get_data(name, start, end)['Close'])
     st.text("Cumulative Return Comparison")
