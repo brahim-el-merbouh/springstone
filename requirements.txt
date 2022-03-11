@@ -35,7 +35,6 @@ tensorflow
 streamlit
 fastapi
 uvicorn
-rnn_model
 keras-tuner
 termcolor
 plotly
