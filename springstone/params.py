@@ -25,7 +25,10 @@ TICKER_KEYWORDS = {
     "SPY": "(SPY OR S&P 500 OR S&P-500)",
     "RIOT": "(RIOT)",
     "AMZN": "(AMZN OR Jeff Bezos OR AMAZON)",
-    "BAC": "(Bank of America OR BAC OR BoA)"
+    "BAC": "(Bank of America OR BAC OR BoA)",
+    "FB": "(facebook OR FB OR Meta OR Zuckerberg)",
+    "ROSN": "(Rosneft OR ROSN)",
+    "NVTK": "(NVTK OR Novatek)"
 }
 
 THRESHOLD = 0.75
