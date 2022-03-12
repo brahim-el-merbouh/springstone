@@ -151,6 +151,7 @@ def basic_recommendation(ticker):
         return "Hold"
 
 
+
 if __name__ == "__main__":
     #df = get_data('TSLA')
     #df = bollinger_bands(df, 'Close', 20)

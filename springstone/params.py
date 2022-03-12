@@ -7,3 +7,20 @@ PROPHET_COLUMN = 'Close'
 PROPHET_PERIOD = 7
 MODEL_TYPE = 'prophet'
 TICKERS = ['AAPL', 'TSLA', 'BAC', 'AMZN', 'BTC-USD', 'SPY', 'RIOT']
+
+# credentials for tweeter.api
+CONSUMER_KEY = "HN4HDYwIzatkeVMftVdpNq1b5"
+CONSUMER_SECRET = "6RWcc6qyBh5hu6XhLpgpb5HjmyjKOElpR5l7a5K7XNy5ffYR3P"
+ACCESS_TOKEN = "745868496848953344-OJMeny3ow43jGAToTUzdcTprknfN87p"
+ACCESS_TOKEN_SECRET = "kH6t5Az7t2QAWWT5MoTSY5vFMmBWo6KRQlFDucN7XYQWH"
+BEARER_TOKEN = "AAAAAAAAAAAAAAAAAAAAALqAYQEAAAAAu9eBut5eSqcDtAtnpjaK4bBPInU%3DZ5dG7iBEDwII7Nj3QxSKqsZhb4Fpm6qmBngnuStTrMQeYMQUNE"
+
+# from ticker to keywords for the  tweeter.api query
+TICKET_KEYWORDS = {
+    "TSLA": "(TSLA OR Elon Musk OR TESLA)",
+    "APPL": "(AAPL OR Apple)",
+    "BTC-USD": "(BTC-USD OR Bitcoin)",
+    "SPY": "(SPY)",
+    "RIOT": "(RIOT)",
+    "AMZN": "(AMZN, Jeff Bezos, AMAZON)"
+}
