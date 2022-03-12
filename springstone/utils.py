@@ -158,5 +158,6 @@ if __name__ == "__main__":
     #df = bollinger_bands(df, 'Close', 20)
     #df = moving_average(df, 'Close', 7)
     #print(df.tail(15))
-    rec = basic_recommendation('AAPL')
+    #rec = basic_recommendation('AAPL')
+    rec = temp_data_predict('AAPL')
     print(rec)

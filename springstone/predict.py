@@ -1,6 +1,9 @@
 from sklearn.metrics import mean_absolute_error
 from springstone.data import download_model, get_data, create_df_for_prophet, create_train_test
 from springstone.prophet_wrapper import ProphetWrapper
+import joblib
+from tensorflow.keras.models import load_model
+import numpy as np
 
 def compute_performance_metric(model_type, y_true, y_pred):
     if model_type == "prophet":
@@ -27,12 +30,24 @@ def predict_from_model(ticker, model_type, X):
             model_type: type of model used such as prohet or RNN
             X: data
        Ouptut: return a dataframe with predicted values"""
-    model = download_model(ticker, model_type)
     if model_type == "prophet":
+        model = download_model(ticker, model_type)
         y_pred = model['prophet_model'].prophet.predict(X)['yhat']
     elif model_type == 'rnn':
-        y_pred = model.predict(X)
-
+        print('Predict from model for rnn')
+        preprocessor = joblib.load(f'preprocessor_{ticker}.joblib')
+        X_preprocessed = preprocessor.transform(X)
+        X_preprocessed = X_preprocessed[-14:,:]
+        model = load_model(ticker)
+        X_preprocessed = np.expand_dims(X_preprocessed, axis=0)
+        scaled_close_prediction = model.predict(X_preprocessed)
+        fin_scaller_output = np.zeros((1,7))
+        fin_scaller_output[0,1] = scaled_close_prediction
+        y_pred = preprocessor\
+                                    .named_steps['transform']\
+                                    .named_transformers_['fin_scaller']\
+                                    .inverse_transform(fin_scaller_output)[0,1]
+        y_pred = np.array([y_pred])
     return y_pred
 
 if __name__ == "__main__":

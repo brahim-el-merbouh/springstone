@@ -66,6 +66,7 @@ BUCKET_NAME=wagon-data-716-el-merbouh
 REGION=europe-west1
 
 PROPHET_DOCKER_IMAGE_NAME=springstone_for_prophet_gcp
+RNN_DOCKER_IMAGE_NAME=springstone_for_rnn_gcp
 
 set_project:
 	-@gcloud config set project ${PROJECT_ID}
@@ -84,6 +85,19 @@ gcp_push_prophet_docker:
 
 gcp_deploy_prophet_docker:
 	-@gcloud run deploy --image eu.gcr.io/${PROJECT_ID}/${PROPHET_DOCKER_IMAGE_NAME} --platform managed --region ${REGION}
+
+gcp_build_rnn_docker:
+	-@docker build -t eu.gcr.io/${PROJECT_ID}/${RNN_DOCKER_IMAGE_NAME} -f rnn_dockerfile .
+
+gcp_run_rnn_docker_locally:
+	-@docker run -e PORT=8000 -p 8000:8000 eu.gcr.io/${PROJECT_ID}/${RNN_DOCKER_IMAGE_NAME}
+
+gcp_push_rnn_docker:
+	-@docker push eu.gcr.io/${PROJECT_ID}/${RNN_DOCKER_IMAGE_NAME}
+
+gcp_deploy_rnn_docker:
+	-@gcloud run deploy --image eu.gcr.io/${PROJECT_ID}/${RNN_DOCKER_IMAGE_NAME} --platform managed --region ${REGION} --memory 4G
+
 ##### Training  - - - - - - - - - - - - - - - - - - - - - -
 
 # will store the packages uploaded to GCP for the training
