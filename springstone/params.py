@@ -25,3 +25,5 @@ TICKER_KEYWORDS = {
     "AMZN": "(AMZN OR Jeff Bezos OR AMAZON)",
     "BAC": "(Bank of America OR BAC OR BoA)"
 }
+
+THRESHOLD = 0.75
