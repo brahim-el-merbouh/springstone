@@ -93,7 +93,8 @@ def ticker_to_tweets(ticker):
 
     tweets = client.search_recent_tweets(
         query=query,
-        tweet_fields=['author_id', 'created_at', 'public_metrics'])
+        tweet_fields=['author_id', 'created_at', 'public_metrics'],
+        max_results=100)
     if tweets.status_code == 200:
         score = tweet_to_sentiment(tweets)
         return score
