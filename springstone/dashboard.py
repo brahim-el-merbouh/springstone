@@ -1,6 +1,6 @@
 from email.policy import default
 import streamlit as st
-from springstone.data import get_data
+from data import get_data
 import pandas as pd
 import numpy as np
 from plotly import graph_objs as go
@@ -18,6 +18,8 @@ st.title("SpringStone Stock Prediction")
 
 # -----------Date Input------------------------
 
+st.sidebar.write("Please choose the stock symbol and dates:")
+
 today = dt.datetime.today()
 
 start = st.sidebar.date_input('Start date:',
@@ -32,7 +34,7 @@ end = st.sidebar.date_input('End date:',
 # -----------Stock Selection-------------------
 
 selected_stock = ("AAPL", "BTC-USD", "AMZN","TSLA","SPY", "RIOT")
-ticker_name = st.sidebar.selectbox("Select Company", selected_stock)
+ticker_name = st.sidebar.selectbox("Select Company:", selected_stock)
 
 # ---------------Load Data---------------------
 @st.cache
@@ -45,7 +47,6 @@ def recommendation():
     if st.button('Check Recommendation'):
         response = requests.get(f'https://springstoneforprophetgcp-2bu5nzzs7a-ew.a.run.app/predict?ticker={ticker_name}')
         rec = response.json()['recommendation']
-        st.balloons()
         st.write(rec)
 
 recommendation()
@@ -125,7 +126,8 @@ def relativeret(data):
 
 def plot_raw_data():
     selected_stock = ("AAPL", "BTC-USD", "AMZN","TSLA","SPY", "RIOT")
-    name = st.sidebar.multiselect("Compare Company", selected_stock, default=ticker_name)
+    st.sidebar.write("Compare stock returns:")
+    name = st.sidebar.multiselect("Add stock:", selected_stock, default=ticker_name)
     data = relativeret(get_data(name, start, end)['Close'])
     st.text("Cumulative Return Comparison")
     st.line_chart(data)

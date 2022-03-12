@@ -4,8 +4,9 @@ import pandas as pd
 import numpy as np
 from springstone.data import get_missing_dates, create_df_for_prophet, get_data
 from datetime import date, timedelta
-from springstone.params import MODEL_TYPE
+from springstone.params import MODEL_TYPE, THRESHOLD
 from springstone.predict import predict_from_model
+from springstone.tweeter import ticker_to_tweets
 
 def bollinger_bands(data, col, period, standard_deviations=2, new_columns_only=False):
     """Create a Bollinger band over a specified period.
@@ -153,11 +154,39 @@ def basic_recommendation(ticker):
         return "Hold"
 
 
+# Enhanced strategy implemented for the recommendation using tweeter sentiment
+def enhanced_recommendation(ticker):
+    """Recommendation for the next day predicted y, 5 options possible
+       Input:
+            ticker: ticker to be used for the recommendation. Ex: ‘AAPL’
+       Output: one string text that give the recommendation"""
+    list_temp = temp_data_predict(ticker)
+    score = ticker_to_tweets(ticker)
+    if list_temp['Close'][0] > list_temp['Close_bb20_2'][0]:
+        if list_temp['Close'][0] < list_temp['Close_ma7'][0]:
+            return "Strong sell recommendation"
+        else:
+            if score < -THRESHOLD:
+                return "Strong sell recommendation"
+            else:
+                return "Sell recommendation"
+    if list_temp['Close'][0] < list_temp['Close_bb20_-2'][0]:
+        if list_temp['Close'][0] > list_temp['Close_ma7'][0]:
+            return "Strong buy recommendation"
+        else:
+            ##return “Buy recommendation”
+            if score > THRESHOLD:
+                return "Strong buy recommendation"
+            else:
+                return "Buy recommendation"
+    else:
+        return "Hold"
+
+
 if __name__ == "__main__":
     #df = get_data('TSLA')
     #df = bollinger_bands(df, 'Close', 20)
     #df = moving_average(df, 'Close', 7)
     #print(df.tail(15))
-    #rec = basic_recommendation('AAPL')
-    rec = temp_data_predict('AAPL')
+    rec = enhanced_recommendation('AAPL')
     print(rec)
