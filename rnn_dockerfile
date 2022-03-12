@@ -1,0 +1,16 @@
+
+FROM python:3.8.12-bullseye
+COPY preprocessor_*.joblib /
+COPY TSLA /TSLA
+COPY SPY /SPY
+COPY RIOT /RIOT
+COPY BTC-USD /BTC-USD
+COPY BAC /BAC
+COPY AMZN /AMZN
+COPY AAPL /AAPL
+COPY api /api
+COPY springstone /springstone
+COPY requirements.txt /requirements.txt
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+CMD uvicorn api.fast:app --host 0.0.0.0 --port $PORT
