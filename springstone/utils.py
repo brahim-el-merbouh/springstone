@@ -1,3 +1,4 @@
+import datetime
 import holidays
 import pandas as pd
 import numpy as np
@@ -115,7 +116,8 @@ def temp_data_predict(ticker):
     #Run the prediction for the next business day
     if MODEL_TYPE == 'prophet':
         future = pd.DataFrame({'ds': [next_business_day(date.today())]})
-
+    if MODEL_TYPE == 'rnn':
+        future = get_data(ticker, start=datetime.datetime.today() - datetime.timedelta(days=60), end=datetime.datetime.today() + datetime.timedelta(days=1))
     forecast = predict_from_model(ticker, MODEL_TYPE, future)
     y_predict = forecast[0]
 

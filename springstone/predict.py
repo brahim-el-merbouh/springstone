@@ -30,7 +30,7 @@ def predict_from_model(ticker, model_type, X):
     model = download_model(ticker, model_type)
     if model_type == "prophet":
         y_pred = model['prophet_model'].prophet.predict(X)['yhat']
-    else:
+    elif model_type == 'rnn':
         y_pred = model.predict(X)
 
     return y_pred
