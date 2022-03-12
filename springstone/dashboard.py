@@ -18,6 +18,8 @@ st.title("SpringStone Stock Prediction")
 
 # -----------Date Input------------------------
 
+st.sidebar.write("Please choose the stock symbol and dates:")
+
 today = dt.datetime.today()
 
 start = st.sidebar.date_input('Start date:',
@@ -32,7 +34,7 @@ end = st.sidebar.date_input('End date:',
 # -----------Stock Selection-------------------
 
 selected_stock = ("AAPL", "BTC-USD", "AMZN","TSLA","SPY", "RIOT")
-ticker_name = st.sidebar.selectbox("Select Company", selected_stock)
+ticker_name = st.sidebar.selectbox("Select Company:", selected_stock)
 
 # ---------------Load Data---------------------
 @st.cache
@@ -124,7 +126,8 @@ def relativeret(data):
 
 def plot_raw_data():
     selected_stock = ("AAPL", "BTC-USD", "AMZN","TSLA","SPY", "RIOT")
-    name = st.sidebar.multiselect("Compare Company", selected_stock, default=ticker_name)
+    st.sidebar.write("Compare stock returns:")
+    name = st.sidebar.multiselect("Add stock:", selected_stock, default=ticker_name)
     data = relativeret(get_data(name, start, end)['Close'])
     st.text("Cumulative Return Comparison")
     st.line_chart(data)
