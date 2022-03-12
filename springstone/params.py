@@ -9,8 +9,6 @@ MODEL_TYPE = 'rnn'
 TICKERS = ['AAPL', 'TSLA', 'AMZN', 'BTC-USD', 'SPY','RIOT']
 BUCKET_NAME = 'wagon-data-716-el-merbouh'
 TRAINING_DIRECTORY = 'trainings'
-MODEL_TYPE = 'prophet'
-TICKERS = ['AAPL', 'TSLA', 'BAC', 'AMZN', 'BTC-USD', 'SPY', 'RIOT']
 
 # credentials for tweeter.api
 CONSUMER_KEY = "HN4HDYwIzatkeVMftVdpNq1b5"
