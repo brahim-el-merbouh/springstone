@@ -38,3 +38,7 @@ uvicorn
 keras-tuner
 termcolor
 plotly
+
+# tweeter stuff
+flair
+tweepy==4.6.0
