@@ -3,7 +3,7 @@ import re
 import pandas as pd
 import requests
 import tweepy
-import params
+from springstone import params
 
 sentiment_model = flair.models.TextClassifier.load('en-sentiment')
 
@@ -84,7 +84,7 @@ def tweet_to_sentiment(tweets):
 # place the dict into params
 
 def ticker_to_tweets(ticker):
-    value = params.TICKET_KEYWORDS[ticker]
+    value = params.TICKER_KEYWORDS[ticker]
     query = f"{value}(from:aswathdamodaran OR from:ukarlewitz OR from:alphatrends OR from:Investor666 OR\
   from:markminervini OR from:TradersCorner OR from:Option_snipper OR from:LMT978 OR from:OptionsHawk OR\
   from:SunriseTrader OR from:traderstewie OR from:IncredibleTrade OR from:CNBC OR from:Benzinga OR\
@@ -96,9 +96,10 @@ def ticker_to_tweets(ticker):
         tweet_fields=['author_id', 'created_at', 'public_metrics'])
     if tweets.status_code == 200:
         score = tweet_to_sentiment(tweets)
+        return score
     else:
         return 0
 
 if __name__ == "__main__":
-    ticker = 'APPL'
-    ticker_to_tweets(ticker)
+    ticker = 'BAC'
+    print(ticker_to_tweets(ticker))

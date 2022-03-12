@@ -16,11 +16,12 @@ ACCESS_TOKEN_SECRET = "kH6t5Az7t2QAWWT5MoTSY5vFMmBWo6KRQlFDucN7XYQWH"
 BEARER_TOKEN = "AAAAAAAAAAAAAAAAAAAAALqAYQEAAAAAu9eBut5eSqcDtAtnpjaK4bBPInU%3DZ5dG7iBEDwII7Nj3QxSKqsZhb4Fpm6qmBngnuStTrMQeYMQUNE"
 
 # from ticker to keywords for the  tweeter.api query
-TICKET_KEYWORDS = {
+TICKER_KEYWORDS = {
     "TSLA": "(TSLA OR Elon Musk OR TESLA)",
-    "APPL": "(AAPL OR Apple)",
+    "AAPL": "(AAPL OR Apple)",
     "BTC-USD": "(BTC-USD OR Bitcoin)",
-    "SPY": "(SPY)",
+    "SPY": "(SPY OR S&P 500 OR S&P-500)",
     "RIOT": "(RIOT)",
-    "AMZN": "(AMZN, Jeff Bezos, AMAZON)"
+    "AMZN": "(AMZN OR Jeff Bezos OR AMAZON)",
+    "BAC": "(Bank of America OR BAC OR BoA)"
 }
