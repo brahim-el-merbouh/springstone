@@ -1,6 +1,6 @@
 from email.policy import default
 import streamlit as st
-from springstone.data import get_data
+from data import get_data
 import pandas as pd
 import numpy as np
 from plotly import graph_objs as go
@@ -45,7 +45,6 @@ def recommendation():
     if st.button('Check Recommendation'):
         response = requests.get(f'https://springstoneforprophetgcp-2bu5nzzs7a-ew.a.run.app/predict?ticker={ticker_name}')
         rec = response.json()['recommendation']
-        st.balloons()
         st.write(rec)
 
 recommendation()
