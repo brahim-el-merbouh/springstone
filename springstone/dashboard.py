@@ -43,15 +43,13 @@ def load_data(ticker_name=ticker_name, start=start, end=end):
     data.reset_index(inplace=True)
     return data
 
-def recommendation():
-    if st.button('Check Recommendation'):
-        response = requests.get(f'https://springstoneforprophetgcp-2bu5nzzs7a-ew.a.run.app/predict?ticker={ticker_name}')
-        rec = response.json()['recommendation']
-        st.write(rec)
-
-recommendation()
+def non_sentiment_recommendation(ticker_name):
+    response = requests.get(f'https://springstoneforprophetgcp-2bu5nzzs7a-ew.a.run.app/predict?ticker={ticker_name}')
+    rec = response.json()['recommendation']
+    return rec
 
 # -----------Company Name-------------------
+
 
 def company_name(ticker_name):
     if ticker_name == "BTC-USD":
@@ -60,7 +58,44 @@ def company_name(ticker_name):
     company_name = cf.info['longName']
     return company_name
 
+
 st.header(company_name(ticker_name))
+
+
+#---------------Recommendations section--------------
+
+def sentiment(ticker_name):
+    response2 = requests.get(
+        f'https://springstoneforprophetgcpv2-2bu5nzzs7a-ew.a.run.app/sentiment?ticker={ticker_name}'
+    )
+    senti = response2.json()['score']
+    return senti
+
+
+def sentiment_recommendation(ticker_name):
+    response2 = requests.get(
+        f'https://springstoneforrnngcp-2bu5nzzs7a-ew.a.run.app/predict_enhanced?ticker={ticker_name}'
+    )
+    senti_rec = response2.json()['recommendation']
+    return senti_rec
+
+
+def recommendation():
+    if st.button('Check Recommendations'):
+        rec = non_sentiment_recommendation(ticker_name)
+        senti = sentiment(ticker_name=ticker_name)
+        senti_rec = sentiment_recommendation(ticker_name=ticker_name)
+        st.write(f"Financial based recommendation: {rec}")
+        if float(senti) < -0.75:
+            st.write("The sentiment for this ticker is pretty negative for the last 7 days")
+        elif float(senti) > 0.75:
+            st.write("The sentiment for this ticker is pretty positive for the last 7 days")
+        else:
+            st.write("Hum... It is not so clear if the sentiment for this ticker is positive or negative for the last 7 days")
+        st.write(f"Financial + sentiment recommendation: {senti_rec}")
+
+recommendation()
+
 
 # ----------Indicator Selection----------------
 
@@ -112,9 +147,10 @@ def plot_candlestick(ma_flag = False, bb_flag = False):
     y=0.99,
     xanchor="left",
     x=0.8
-))
+    ))
     st.text("Candlestick Graph")
     st.plotly_chart(fig)
+
 
 plot_candlestick(ma_flag)
 
