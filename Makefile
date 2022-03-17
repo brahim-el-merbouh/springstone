@@ -58,12 +58,12 @@ run_api:
 	uvicorn api.fast:app --reload  # load web server with code autoreload
 
 # project id
-PROJECT_ID=wagon-bootcamp-340323
+PROJECT_ID=springstone
 
 # bucket name
 BUCKET_NAME=wagon-data-716-el-merbouh
 
-REGION=europe-west1
+REGION=us-central1
 
 PROPHET_DOCKER_IMAGE_NAME=springstone_for_prophet_gcp
 RNN_DOCKER_IMAGE_NAME=springstone_for_rnn_gcp
@@ -75,33 +75,32 @@ create_bucket:
 	-@gsutil mb -l ${REGION} -p ${PROJECT_ID} gs://${BUCKET_NAME}
 
 gcp_build_prophet_docker:
-	-@docker build -t eu.gcr.io/${PROJECT_ID}/${PROPHET_DOCKER_IMAGE_NAME} .
+	-@docker build -t us.gcr.io/${PROJECT_ID}/${PROPHET_DOCKER_IMAGE_NAME} .
 
 gcp_run_prophet_docker_locally:
-	-@docker run -e PORT=8000 -p 8000:8000 eu.gcr.io/${PROJECT_ID}/${PROPHET_DOCKER_IMAGE_NAME}
+	-@docker run -e PORT=8000 -p 8000:8000 us.gcr.io/${PROJECT_ID}/${PROPHET_DOCKER_IMAGE_NAME}
 
 gcp_push_prophet_docker:
-	-@docker push eu.gcr.io/${PROJECT_ID}/${PROPHET_DOCKER_IMAGE_NAME}
+	-@docker push us.gcr.io/${PROJECT_ID}/${PROPHET_DOCKER_IMAGE_NAME}
 
 gcp_deploy_prophet_docker:
-	-@gcloud run deploy --image eu.gcr.io/${PROJECT_ID}/${PROPHET_DOCKER_IMAGE_NAME} --platform managed --region ${REGION}
+	-@gcloud run deploy --image us.gcr.io/${PROJECT_ID}/${PROPHET_DOCKER_IMAGE_NAME} --platform managed --region ${REGION}
 
 gcp_build_rnn_docker:
-	-@docker build -t eu.gcr.io/${PROJECT_ID}/${RNN_DOCKER_IMAGE_NAME} -f rnn_dockerfile .
+	-@docker build -t us.gcr.io/${PROJECT_ID}/${RNN_DOCKER_IMAGE_NAME} -f rnn_dockerfile .
 
 gcp_run_rnn_docker_locally:
-	-@docker run -e PORT=8000 -p 8000:8000 eu.gcr.io/${PROJECT_ID}/${RNN_DOCKER_IMAGE_NAME}
+	-@docker run -e PORT=8000 -p 8000:8000 us.gcr.io/${PROJECT_ID}/${RNN_DOCKER_IMAGE_NAME}
 
 gcp_push_rnn_docker:
-	-@docker push eu.gcr.io/${PROJECT_ID}/${RNN_DOCKER_IMAGE_NAME}
+	-@docker push us.gcr.io/${PROJECT_ID}/${RNN_DOCKER_IMAGE_NAME}
 
 gcp_deploy_rnn_docker:
-	-@gcloud run deploy --image eu.gcr.io/${PROJECT_ID}/${RNN_DOCKER_IMAGE_NAME} --platform managed --region ${REGION} --memory 4G
+	-@gcloud run deploy --image us.gcr.io/${PROJECT_ID}/${RNN_DOCKER_IMAGE_NAME} --platform managed --region ${REGION} --memory 4G
 
 ##### Training  - - - - - - - - - - - - - - - - - - - - - -
 
-# will store the packages uploaded to GCP for the training
-BUCKET_TRAINING_FOLDER = 'trainings'
+us.gcr.ioBUCKET_TRAINING_FOLDER = 'trainings'
 
 ##### Model - - - - - - - - - - - - - - - - - - - - - - - -
 
