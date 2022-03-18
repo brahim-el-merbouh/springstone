@@ -44,7 +44,8 @@ def load_data(ticker_name=ticker_name, start=start, end=end):
     return data
 
 def non_sentiment_recommendation(ticker_name):
-    response = requests.get(f'https://springstoneforprophetgcp-2bu5nzzs7a-ew.a.run.app/predict?ticker={ticker_name}')
+    response = requests.get(f'https://springstoneforrnngcp-2bu5nzzs7a-ew.a.run.app/predict?ticker={ticker_name}'
+    )
     rec = response.json()['recommendation']
     return rec
 
@@ -65,18 +66,20 @@ st.header(company_name(ticker_name))
 #---------------Recommendations section--------------
 
 def sentiment(ticker_name):
-    response2 = requests.get(
-        f'https://springstoneforprophetgcpv2-2bu5nzzs7a-ew.a.run.app/sentiment?ticker={ticker_name}'
-    )
-    senti = response2.json()['score']
+    with st.spinner('Wait for sentiment analysis response...'):
+        response2 = requests.get(
+            f'https://springstoneforrnngcp-2bu5nzzs7a-ew.a.run.app/sentiment?ticker={ticker_name}'
+        )
+        senti = response2.json()['score']
     return senti
 
 
 def sentiment_recommendation(ticker_name):
-    response2 = requests.get(
-        f'https://springstoneforrnngcp-2bu5nzzs7a-ew.a.run.app/predict_enhanced?ticker={ticker_name}'
-    )
-    senti_rec = response2.json()['recommendation']
+    with st.spinner('Wait for financial + sentiment recommendation...'):
+        response2 = requests.get(
+            f'https://springstoneforrnngcp-2bu5nzzs7a-ew.a.run.app/predict_enhanced?ticker={ticker_name}'
+        )
+        senti_rec = response2.json()['recommendation']
     return senti_rec
 
 
@@ -85,16 +88,29 @@ def recommendation():
         rec = non_sentiment_recommendation(ticker_name)
         senti = sentiment(ticker_name=ticker_name)
         senti_rec = sentiment_recommendation(ticker_name=ticker_name)
-        st.write(f"Financial based recommendation: {rec}")
+        with st.spinner('Wait for financial-based recommendation...'):
+            st.markdown(
+                f"**Financial based recommendation:** <font color=‘blue’>{rec}</font>",
+            unsafe_allow_html=True)
         if float(senti) < -0.75:
-            st.write("The sentiment for this ticker is pretty negative for the last 7 days")
+            st.markdown(
+                "<font color=‘blue’>The sentiment for this ticker is pretty negative for the last 7 days</font>",
+                unsafe_allow_html=True)
         elif float(senti) > 0.75:
-            st.write("The sentiment for this ticker is pretty positive for the last 7 days")
+            st.markdown(
+                "<font color=‘blue’>The sentiment for this ticker is pretty positive for the last 7 days</font>",
+                unsafe_allow_html=True)
         else:
-            st.write("Hum... It is not so clear if the sentiment for this ticker is positive or negative for the last 7 days")
-        st.write(f"Financial + sentiment recommendation: {senti_rec}")
+            st.markdown(
+                "<font color=‘blue’>Hum... It is not so clear if the sentiment for this ticker is positive or negative for the last 7 days</font>",
+                unsafe_allow_html=True)
+        st.markdown(
+            f"**Financial + sentiment recommendation:** <font color=‘blue’>{senti_rec}</font>",
+            unsafe_allow_html=True)
+
 
 recommendation()
+
 
 
 # ----------Indicator Selection----------------
@@ -148,7 +164,7 @@ def plot_candlestick(ma_flag = False, bb_flag = False):
     xanchor="left",
     x=0.8
     ))
-    st.text("Candlestick Graph")
+    st.markdown("### Candlestick Graph")
     st.plotly_chart(fig)
 
 
@@ -165,7 +181,7 @@ def plot_raw_data():
     st.sidebar.write("Compare stock returns:")
     name = st.sidebar.multiselect("Add stock:", selected_stock, default=ticker_name)
     data = relativeret(get_data(name, start, end)['Close'])
-    st.text("Cumulative Return Comparison")
+    st.markdown("### Cumulative Return Comparison")
     st.line_chart(data)
 
 plot_raw_data()
